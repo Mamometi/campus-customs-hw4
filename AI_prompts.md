@@ -79,3 +79,6 @@ The first result was written as a one-time snapshot of the database, with no str
 
 **Prompt:**
 > P13 — GitHub Submission - Can you help me prepare this project for GitHub? Make sure the required files are organized inside the `hw4` folder, create a README with instructions for running the frontend and backend, and check that all the dependencies are listed. Set up `.gitignore` so the database, product images, API keys, and other sensitive files aren't committed. Include an `.env.example` with placeholder values. Please review the folder structure and identify anything missing before I push the project.
+
+**Additional prompt (sent during P13):**
+> create a repo, you have access to my github
