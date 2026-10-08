@@ -14,8 +14,8 @@ data.zip
 *.sqlite3
 *.db-journal
 
-# ---------- Agent logs (contain customer messages, even if redacted) ----------
-output/audit_trail.json
+# ---------- Agent logs ----------
+# output/audit_trail.json IS committed (required deliverable; personal data is redacted).
 output/audit_trail.corrupt-*.json
 output/*.json.tmp
 

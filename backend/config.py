@@ -51,7 +51,7 @@ def require_api_key() -> str:
     key = _portkey_key()
     if not key:
         raise RuntimeError(
-            "PORTKEY_API_KEY is missing. Put it in backend/.env or a parent folder's .env."
+            "PORTKEY_API_KEY is missing. Put it in hw4/.env (copy .env.example)."
         )
     return key
 

@@ -143,9 +143,10 @@
   <div class="howto">
     <b>Before you start</b>
     <ol>
-      <li>Backend: <code>cd backend && .venv/bin/python -m uvicorn main:app --reload --port 8000</code> (check <code>http://127.0.0.1:8000/api/health</code> shows <code>"portkey_key_set": true</code>).</li>
-      <li>Frontend: <code>cd frontend && npm run dev</code>, then open the URL above.</li>
-      <li>Tool tests (optional): <code>cd backend && .venv/bin/python test_tools.py</code> (expect <b>14 passed</b>).</li>
+      <li>Setup (once): <code>cd hw4 && python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt && cp .env.example .env</code>, then put your keys in <code>.env</code> and unzip <code>data.zip</code> into <code>hw4/</code>.</li>
+      <li>Backend: <code>cd backend && uvicorn main:app --reload</code> (check <code>http://127.0.0.1:8000/api/health</code> shows <code>"portkey_key_set": true</code>).</li>
+      <li>Frontend: <code>cd frontend && npm install && npm run dev</code>, then open the URL above.</li>
+      <li>Tool tests (optional): <code>cd backend && python test_tools.py && python test_audit.py</code> (expect <b>14</b> and <b>6 passed</b>).</li>
       <li>Logged-in checks write to <code>data/campus_customs.db</code> (your account and chat history). Use a test account if you want to keep real data clean.</li>
     </ol>
   </div>
@@ -156,7 +157,7 @@
     </header>
     <div class="shot-grid">
       <figure class="shot">
-        <a href="screenshots/p11-1-chat-search-cards.webp" target="_blank"><img src="screenshots/p11-1-chat-search-cards.webp" alt="Handsome Dan chat reply listing 7 jackets in size M with product cards" /></a>
+        <a href="app_check_images/p11-1-chat-search-cards.webp" target="_blank"><img src="app_check_images/p11-1-chat-search-cards.webp" alt="Handsome Dan chat reply listing 7 jackets in size M with product cards" /></a>
         <figcaption>
           <span class="n">1</span><strong>Matching product cards after a chatbot search</strong>
           <p>I asked Handsome Dan for jacket options in size M. The agent searched the database and replied with a short summary (7 options, all $98, with three picks and their stock in M), then returned the matches as <b>clickable product cards</b> in the chat (image, name, price). The “7 results shown on the page: view” button puts the full result set on the Products page, and each card links to that product’s detail page.</p>
@@ -164,7 +165,7 @@
         </figcaption>
       </figure>
       <figure class="shot">
-        <a href="screenshots/p11-2-inventory-stock.webp" target="_blank"><img src="screenshots/p11-2-inventory-stock.webp" alt="Handsome Dan listing School of Art Fleece Sweater stock by size" /></a>
+        <a href="app_check_images/p11-2-inventory-stock.webp" target="_blank"><img src="app_check_images/p11-2-inventory-stock.webp" alt="Handsome Dan listing School of Art Fleece Sweater stock by size" /></a>
         <figcaption>
           <span class="n">2</span><strong>Showing inventory stock levels</strong>
           <p>Following up with “How many of the School of Art fleece sweaters do you have left?”, the agent resolved the product from the conversation, called its inventory tool, and gave the <b>live stock for every size</b> plus the total, then answered for my size (20 left in M). Numbers come straight from the <code>inventory</code> table; the agent is required to quote them, never estimate.</p>
@@ -172,7 +173,7 @@
         </figcaption>
       </figure>
       <figure class="shot">
-        <a href="screenshots/p11-3-filter-size-sort.webp" target="_blank"><img src="screenshots/p11-3-filter-size-sort.webp" alt="Products page showing chat results for Jackets in M with filter chips" /></a>
+        <a href="app_check_images/p11-3-filter-size-sort.webp" target="_blank"><img src="app_check_images/p11-3-filter-size-sort.webp" alt="Products page showing chat results for Jackets in M with filter chips" /></a>
         <figcaption>
           <span class="n">3</span><strong>Usability improvement: filter, then sort by size</strong>
           <p>The usability improvement I added: shoppers can <b>filter by category, narrow to their size, and sort</b> the results. Here the chat search updated the page to “Jackets in M”, and the chips show exactly what was applied: <b>Jackets &amp; Fleece</b> · <b>Size M</b> (only items in stock in M) · <b>Lowest price first</b>. “Show all products” clears it. The same Category and Size filters are also on the Products page itself.</p>
@@ -205,7 +206,7 @@ const AREAS = [
     ["Password mismatch", "Type different passwords in the two fields.", "“Passwords don’t match”, nothing sent.", "Verified in browser."],
     ["Log in / wrong password", "Log out, log in; then try a wrong password.", "Correct login works; wrong one shows “Incorrect email or password”.", "Verified."],
     ["Session persists", "Refresh the page while logged in.", "Still logged in.", "Verified via /api/auth/me."],
-    ["Seeded test account", "Try test@campuscustoms.yale.edu with the assignment password.", "Logs in (needs the correct PBKDF2_ITERATIONS in backend/.env).", "NOT verified: iteration count unknown."],
+    ["Seeded test account", "Try test@campuscustoms.yale.edu with the assignment password.", "Logs in (needs the correct PBKDF2_ITERATIONS in .env).", "NOT verified: iteration count unknown."],
   ]},
   { id: "p5", title: "Chatbot agent (P5–P6)", sub: "PydanticAI + Portkey, grounded in the database", checks: [
     ["Chat opens", "Click the Handsome Dan button (bottom right).", "Chat window with Dan header, welcome, suggestions.", "Verified."],

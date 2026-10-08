@@ -21,7 +21,7 @@ TOKEN_TTL_SECONDS = 60 * 60 * 24 * 7
 def _secret() -> bytes:
     key = os.getenv("SECRET_KEY")
     if not key or key.startswith("replace-with"):
-        raise RuntimeError("SECRET_KEY is not set (see backend/.env.example)")
+        raise RuntimeError("SECRET_KEY is not set (copy hw4/.env.example to hw4/.env)")
     return key.encode()
 
 

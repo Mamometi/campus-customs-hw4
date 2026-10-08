@@ -273,7 +273,7 @@ Run: backend `.venv/bin/python -m uvicorn main:app --reload --port 8000`; fronte
 | `POST /api/auth/login` | `{email, password}` → `{token, user}`; 401 on bad credentials |
 | `GET /api/auth/me` | `Authorization: Bearer <token>` → user (never includes `password_hash`) |
 
-Auth: tokens are HMAC-SHA256-signed `{uid, exp}` (7 days) using `SECRET_KEY` from `backend/.env`. New hashes use `pbkdf2_sha256$<16-hex salt>$<digest>` with `PBKDF2_ITERATIONS` (default 600000, env-overridable; see open question #1).
+Auth: tokens are HMAC-SHA256-signed `{uid, exp}` (7 days) using `SECRET_KEY` from `hw4/.env`. New hashes use `pbkdf2_sha256$<16-hex salt>$<digest>` with `PBKDF2_ITERATIONS` (default 600000, env-overridable; see open question #1).
 
 ### Frontend routes
 
@@ -354,7 +354,7 @@ Why this matters:
 ### Staying logged in (tokens)
 
 - Token = `base64url({"uid": <id>, "exp": <unix time + 7 days>}) + "." + base64url(HMAC-SHA256(SECRET_KEY, payload))`.
-- The signature uses `SECRET_KEY` from `backend/.env`. Changing that key logs everyone out.
+- The signature uses `SECRET_KEY` from `hw4/.env`. Changing that key logs everyone out.
 - The frontend stores the token in `localStorage` (`cc_token`), sends it as `Authorization: Bearer <token>`, and on page load calls `GET /api/auth/me` to restore the user. An invalid or expired token is discarded.
 - Log out = delete the token on the client.
 - API responses never include `password_hash` (`public_user()` whitelists `id, name, first_name, last_name, email`).
@@ -388,13 +388,13 @@ The 3 pre-existing accounts were hashed with an unknown iteration count (see ope
 | `backend/agent.py` | PydanticAI `Agent` (deps, dynamic instructions, tool registration); `run_chat()` |
 | `backend/tools.py` | Product/inventory functions over SQLite returning typed models (see section 8) |
 | `backend/models.py` | Pydantic models: auth requests, `ChatRequest`, `ChatTurn`, `AgentReply` (agent output), `ChatResponse`, `ChatHistoryMessage` |
-| `backend/prompts/system_prompt.md` | Persona + grounding rules (edit this to change personality) |
+| `backend/prompts/prompt.md` | Persona + grounding rules (edit this to change personality) |
 
 ### Model configuration (same as `Lectures/11`)
 
 - `AsyncOpenAI(base_url=PORTKEY_BASE_URL, api_key=KEY, default_headers={"x-portkey-api-key": KEY})` wrapped in `OpenAIResponsesModel` (gpt-6-luna needs the Responses API for function tools).
 - Model id sent to Portkey: `@azure-openai-global/gpt-6-luna` (= `PORTKEY_PROVIDER/MODEL_NAME`, both overridable in `.env`).
-- `PORTKEY_API_KEY` lives in `.env` (currently the class-wide `AI Foundations/.env`; `backend/.env` also works). It is never sent to the frontend; `/api/health` only reports `portkey_key_set: true/false`.
+- `PORTKEY_API_KEY` lives in `.env` (`hw4/.env`; `config.py` also checks `backend/` and parent folders). It is never sent to the frontend; `/api/health` only reports `portkey_key_set: true/false`.
 - Timeout 120 s, 1 retry.
 
 ### Personality
@@ -520,7 +520,7 @@ ToolError        {error, suggestions: ProductRef{product_id,name,price}[]}
 
 ### System prompt: when to call
 
-`prompts/system_prompt.md` maps customer questions to tools (table), requires a tool result **in the current conversation** for any product fact (stock is re-checked, not remembered), and has an **out-of-stock procedure**: (1) say it's sold out plainly, (2) list sizes that are in stock, (3) offer `find_alternatives` in the customer's size.
+`prompts/prompt.md` maps customer questions to tools (table), requires a tool result **in the current conversation** for any product fact (stock is re-checked, not remembered), and has an **out-of-stock procedure**: (1) say it's sold out plainly, (2) list sizes that are in stock, (3) offer `find_alternatives` in the customer's size.
 
 ### Verification
 
@@ -603,12 +603,12 @@ Products.tsx: view=chat && results → <ChatResultsView>: banner (title, "27 ite
 
 ### When the agent shows results on the page (prompt rules)
 
-`AgentReply` has `show_results_on_page: bool` and `results_title: str | None` (field descriptions in `models.py`), and `prompts/system_prompt.md` has a "Showing search results on the page" section:
+`AgentReply` has `show_results_on_page: bool` and `results_title: str | None` (field descriptions in `models.py`), and `prompts/prompt.md` has a "Showing search results on the page" section:
 - **True** for browsing a set: "what hoodies…", "show me Saybrook gear", "anything under $40", "navy crewnecks in M".
 - **False** for one specific item, stock checks, small talk, policies, or no matches.
 - When true, keep the reply to ≤ 3 sentences and ≤ 3 named items, give the count and price range, end with "I've put all N on the page", and put the top 3–4 picks in `product_ids`. No bulleted product list.
 
-The system prompt is now loaded through `@agent.instructions` **on every run**, so edits to `system_prompt.md` take effect without restarting (uvicorn `--reload` only watches `.py` files).
+The system prompt is now loaded through `@agent.instructions` **on every run**, so edits to `prompt.md` take effect without restarting (uvicorn `--reload` only watches `.py` files).
 
 ### Frontend pieces
 
@@ -694,7 +694,7 @@ For guests the customer line reads "guest (not logged in). Nothing is saved…".
 - `ChatWidget` uses `matchPath("/products/:productId", location.pathname)` and sends `page: {path, product_id}` with every `POST /api/chat`.
 - When on a product page it fetches the product and shows a context bar above the input: **"👀 Viewing: Baseball Left Chest Crewneck · Ask 'Is this in M?'"**. It updates as the customer navigates, and the chat stays open.
 
-### Prompt rules (`system_prompt.md` → "Memory & page context")
+### Prompt rules (`prompt.md` → "Memory & page context")
 
 - "this / it / this one" → the viewed product unless the conversation clearly refers to another.
 - Colors ("in pink?"): one colorway per product. Say no plainly, give the real color, and offer to search that color.
@@ -738,8 +738,8 @@ Rationale and test results are in **`output/usability.md`**. Technical summary:
 |---|---|---|
 | Size + category filters | `GET /api/products?size=` (in stock in size), `GET /api/sizes?category=` (counts per size); Products page has Category and Size rows, URL params `category`/`size`, active-filter summary, "Clear all filters" | `main.py`, `api.ts`, `Products.tsx`, `App.css` |
 | Contrasting backdrops | `scripts/make_cutouts.py` → `data/products_cutout/<id>.webp` + `manifest.json`; product contract adds `display_image_url`, `image_bg`; `imageFrame(p)` paints the backdrop in every image frame | `scripts/make_cutouts.py`, `db.py`, `main.py` (mount `/media/products_cutout`), `api.ts`, card/detail/home/chat components |
-| Alternatives when unavailable | `SearchResult.alternatives`/`alternatives_reason`, `StockReport.alternatives`, `ProductRef.sizes_in_stock`, `ProductSummary.quantity_by_size`; `COLOR_FAMILIES`, `NOT_CARRIED`, filter relaxation, similarity-ranked `find_alternatives`; prompt "Never a dead end" | `models.py`, `tools.py`, `agent.py`, `system_prompt.md`, `test_tools.py` |
-| Clarifying questions | `AgentReply.quick_replies` → `ChatResponse.quick_replies` → chips in `ChatWidget`; prompt "Ask clarifying questions instead of guessing" | `models.py`, `agent.py`, `system_prompt.md`, `ChatWidget.tsx` |
+| Alternatives when unavailable | `SearchResult.alternatives`/`alternatives_reason`, `StockReport.alternatives`, `ProductRef.sizes_in_stock`, `ProductSummary.quantity_by_size`; `COLOR_FAMILIES`, `NOT_CARRIED`, filter relaxation, similarity-ranked `find_alternatives`; prompt "Never a dead end" | `models.py`, `tools.py`, `agent.py`, `prompt.md`, `test_tools.py` |
+| Clarifying questions | `AgentReply.quick_replies` → `ChatResponse.quick_replies` → chips in `ChatWidget`; prompt "Ask clarifying questions instead of guessing" | `models.py`, `agent.py`, `prompt.md`, `ChatWidget.tsx` |
 
 ### Product contract additions
 
@@ -751,7 +751,7 @@ Rationale and test results are in **`output/usability.md`**. Technical summary:
 ### Regenerating cutouts
 
 ```bash
-cd backend && .venv/bin/pip install pillow numpy scipy && .venv/bin/python scripts/make_cutouts.py
+cd backend && .venv/bin/pip install pillow numpy scipy && python scripts/make_cutouts.py
 ```
 
 The script is deterministic and leaves `data/products/` untouched. `db.cutout_manifest()` reloads the manifest when it changes. With no manifest, every product falls back to the original photo on white.
@@ -824,7 +824,7 @@ Every `/api/chat` turn (guest or logged in, success or failure) appends **one re
 
 **Append-only guarantees** (tested in `backend/test_audit.py`): a process-wide lock serializes writers; each write reads the array, appends, writes a temp file and atomically replaces the original (`os.replace`), so existing records are never dropped (25 concurrent appends → 25 records). If the file is corrupt, it's **moved aside** to `audit_trail.corrupt-<time>.json` and a new array starts. Nothing is deleted.
 
-**Privacy:** messages, replies, tool args and results pass through `audit.redact()` (emails → `[email]`, card numbers → `[card-number]`, phone, SSN, `password: …`). Actor is `user:<id>` only. The trail is a local file for the store team, not served by the API.
+**Privacy:** messages, replies, tool args and results pass through `audit.redact()` (emails → `[email]`, card numbers → `[card-number]`, phone, SSN, `password: …`). Actor is `user:<id>` only. The trail is never served by the API. `output/audit_trail.json` is committed as a required deliverable, containing only guest test conversations from development, with personal data redacted.
 
 **`safety_flags`** (heuristics, logged for review; they don't block): `override_instructions`, `prompt_extraction`, `role_hijack`, `fake_authority`, `discount_fishing`, `other_customer_data`, `secrets`, `wellbeing_concern`, `sensitive_data_shared`.
 
@@ -863,12 +863,11 @@ A **"Safety & security"** section sits right after the persona and overrides eve
 # 1. Data: unzip data.zip in hw4/ (creates data/campus_customs.db and data/products/)
 unzip data.zip
 
-# 2. Backend (terminal 1)
-cd backend
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
-cp .env.example .env            # set SECRET_KEY; PORTKEY_API_KEY here or in a parent folder's .env
-.venv/bin/python -m uvicorn main:app --reload --port 8000
+# 2. Backend (terminal 1). Python deps and .env live at the hw4/ root
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env            # set PORTKEY_API_KEY and SECRET_KEY
+cd backend && uvicorn main:app --reload --port 8000
 #   health check: http://127.0.0.1:8000/api/health → {"ok": true, "portkey_key_set": true, ...}
 #   API docs:     http://127.0.0.1:8000/docs
 
@@ -877,19 +876,18 @@ cd frontend
 npm install
 npm run dev                      # http://localhost:5173
 
-# 4. Tests (no model calls)
-cd backend
-.venv/bin/python test_tools.py   # 14 tool tests against the real DB (read-only)
-.venv/bin/python test_audit.py   # 6 audit/safety tests (temp file)
+# 4. Tests (no model calls), from hw4/backend with the venv active
+python test_tools.py   # 14 tool tests against the real DB (read-only)
+python test_audit.py             # 6 audit/safety tests (temp file)
 
 # 5. Optional: regenerate image assets (only if photos change)
-.venv/bin/python scripts/make_cutouts.py   # product cutouts + backdrops → data/products_cutout/
-.venv/bin/python scripts/make_mascot.py    # Handsome Dan art → frontend/public/
+python scripts/make_cutouts.py   # product cutouts + backdrops → data/products_cutout/
+python scripts/make_mascot.py    # Handsome Dan art → frontend/public/
 ```
 
 `.claude/launch.json` also defines `campus-customs` (frontend on 5174), `campus-customs-api` (backend on 8000), and `campus-customs-docs` (serves `output/` on 8090 for `app_check.html`). CORS allows ports 5173 and 5174.
 
-**Environment variables** (`backend/.env`, all optional except the first two):
+**Environment variables** (`hw4/.env`, template `hw4/.env.example`; all optional except the first two):
 
 | Variable | Default | Purpose |
 |---|---|---|
@@ -930,7 +928,7 @@ cd backend
 | `list_categories` | – | `CatalogOverview` | Counts, price ranges, sizes, "tops & outerwear only" |
 | *(structured output)* `final_result` | – | `AgentReply` | Not a data tool; excluded from `tools_used` and the audit |
 
-Instructions: `prompts/system_prompt.md` (read **every run**) + `_session_context()` (date, customer profile, current page/product).
+Instructions: `prompts/prompt.md` (read **every run**) + `_session_context()` (date, customer profile, current page/product).
 
 ### 14.4 Security rules (code + prompt)
 
@@ -987,6 +985,6 @@ Instructions: `prompts/system_prompt.md` (read **every run**) + `_session_contex
 | P8 | Customer memory: `CustomerProfile` (name, email, history stats) + page context in `ChatDeps`, session-context instructions, history keeps product ids, page context bar in chat, per-loop model cache (section 10). |
 | P9 | Size + category filters, contrasting cutout backdrops, automatic alternatives (color families, not-carried, relaxation), clarifying questions with quick replies (section 11, `usability.md`). |
 | P10 | Yale-inspired redesign (tokens, Caslon/Inter, new home, cards, detail, chat), Handsome Dan mascot cut from product art, persona rename, word-start search (section 12, `design.md`). |
-| P11 | Site testing: 3 screenshots (chat search cards, inventory stock levels, filter + size + sort) with captions and DB cross-checks added to `output/app_check.html` (images in `output/screenshots/`). |
+| P11 | Site testing: 3 screenshots (chat search cards, inventory stock levels, filter + size + sort) with captions and DB cross-checks added to `output/app_check.html` (images in `output/app_check_images/`). |
 | P12 | Append-only redacted audit trail (`output/audit_trail.json`, `audit.py`), safety flags, usage limits, content-filter handling, Safety & security prompt section, no-checkout fix, `test_audit.py`; harness completed with reference section 14 (models, tools, security, limits, running). |
 | P13 | Folder renamed to `hw4`; root `.gitignore` (secrets, data/DB/images, audit log, venv, node_modules, dist); `.env.example` placeholders (placeholders treated as unset); README rewritten; deps tightened (pydantic-ai-slim>=2.50); pushed to github.com/Mamometi/campus-customs-hw4 (public). |

@@ -10,7 +10,7 @@ A storefront for **Campus Customs**, a family-run Yale apparel shop on Broadway 
 
 | Chat search → product cards | Live inventory by size | Filter by category + size, sorted |
 |---|---|---|
-| ![Chat search](output/screenshots/p11-1-chat-search-cards.webp) | ![Inventory](output/screenshots/p11-2-inventory-stock.webp) | ![Filters](output/screenshots/p11-3-filter-size-sort.webp) |
+| ![Chat search](output/app_check_images/p11-1-chat-search-cards.webp) | ![Inventory](output/app_check_images/p11-2-inventory-stock.webp) | ![Filters](output/app_check_images/p11-3-filter-size-sort.webp) |
 
 ---
 
@@ -32,36 +32,34 @@ A storefront for **Campus Customs**, a family-run Yale apparel shop on Broadway 
 
 ```
 hw4/
-├── README.md               ← you are here
-├── AI_prompts.md           ← prompts used to build this project (P1–P13)
+├── AI_prompts.md            ← prompts used to build this project (P1–P13)
+├── requirements.txt         ← Python dependencies (backend + image scripts)
+├── .env.example             ← copy to .env and add your keys
 ├── .gitignore
-├── backend/
-│   ├── main.py             ← FastAPI entry point (routes only)
-│   ├── config.py           ← .env loading, Portkey/model config, agent limits
-│   ├── agent.py            ← PydanticAI agent, deps, tool registration, run_chat()
-│   ├── tools.py            ← product & inventory tools (read-only SQLite)
-│   ├── models.py           ← Pydantic models (API, agent output, tool outputs)
-│   ├── db.py               ← SQLite access + product contract
-│   ├── auth.py             ← password hashing + signed tokens
-│   ├── audit.py            ← append-only audit trail, redaction, safety flags
-│   ├── prompts/system_prompt.md   ← Handsome Dan's instructions & safety rules
-│   ├── scripts/            ← make_cutouts.py, make_mascot.py (image assets)
-│   ├── test_tools.py       ← 14 tool tests (real DB, read-only)
-│   ├── test_audit.py       ← 6 audit/safety tests
-│   ├── requirements.txt
-│   └── .env.example
-├── frontend/
-│   ├── src/                ← App, pages/, components/, api.ts, auth.tsx, brand.ts…
-│   ├── public/             ← Handsome Dan art
+├── README.md                ← you are here
+├── frontend/                # Vite React TypeScript app
+│   ├── src/                 ← App, pages/, components/, api.ts, auth.tsx, brand.ts…
+│   ├── public/              ← Handsome Dan art
 │   ├── package.json / package-lock.json
-│   └── .env.example
+│   └── .env.example         ← optional VITE_API_BASE
+├── backend/
+│   ├── main.py              # FastAPI app — run with: uvicorn main:app --reload
+│   ├── agent.py             ← PydanticAI agent, deps, tool registration, run_chat()
+│   ├── models.py            ← Pydantic models (API, agent output, tool outputs)
+│   ├── tools.py             ← product & inventory tools (read-only SQLite)
+│   ├── prompts/
+│   │   └── prompt.md        ← Handsome Dan's instructions & safety rules
+│   ├── config.py · db.py · auth.py · audit.py   ← config, SQLite, login, audit trail
+│   ├── scripts/             ← make_cutouts.py, make_mascot.py (image assets)
+│   └── test_tools.py · test_audit.py
 ├── output/
-│   ├── harness.md          ← full technical reference (data, API, agent, security, limits)
-│   ├── usability.md        ← P9 usability rationale
-│   ├── design.md           ← P10 design rationale
-│   ├── app_check.html      ← interactive test checklist + screenshots
-│   └── screenshots/
-└── data/                   ← NOT in git: campus_customs.db, products/, products_cutout/
+│   ├── harness.md           ← full technical reference
+│   ├── design.md            ← P10 design rationale
+│   ├── usability.md         ← P9 usability rationale
+│   ├── app_check.html       ← interactive test checklist
+│   ├── app_check_images/    # screenshots linked from app_check.html
+│   └── audit_trail.json     ← append-only agent activity log (redacted)
+└── data/                    ← NOT in git: campus_customs.db, products/, products_cutout/
 ```
 
 ---
@@ -90,13 +88,17 @@ unzip data.zip          # creates data/campus_customs.db and data/products/*.jpg
 
 ### 2. Backend (FastAPI), terminal 1
 
+Python dependencies and the `.env` file live at the **`hw4/` root**:
+
 ```bash
-cd hw4/backend
+cd hw4
 python3 -m venv .venv
 source .venv/bin/activate            # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env                 # then edit .env: set PORTKEY_API_KEY and SECRET_KEY
-python -m uvicorn main:app --reload --port 8000
+
+cd backend
+uvicorn main:app --reload            # http://127.0.0.1:8000
 ```
 
 - Health check: <http://127.0.0.1:8000/api/health> should show `"ok": true, "portkey_key_set": true`
@@ -117,7 +119,7 @@ If the backend runs somewhere else, copy `frontend/.env.example` to `frontend/.e
 The site shows each product on a backdrop that contrasts with the garment. Those cutouts are generated from the product photos, so they aren't committed either. Without them the site falls back to the original photos.
 
 ```bash
-cd hw4/backend
+cd hw4/backend                       # with the venv active
 python scripts/make_cutouts.py       # ~5 min → data/products_cutout/ (+ manifest.json)
 ```
 
@@ -126,7 +128,7 @@ python scripts/make_cutouts.py       # ~5 min → data/products_cutout/ (+ manif
 ### 5. Tests (no model calls, no API key needed)
 
 ```bash
-cd hw4/backend
+cd hw4/backend                       # with the venv active
 python test_tools.py                 # expect: 14 passed
 python test_audit.py                 # expect: 6 passed
 ```
@@ -143,7 +145,7 @@ cd hw4/frontend && npm run build     # type-check + bundle into frontend/dist/
 
 ## Configuration
 
-All backend settings live in `backend/.env` (template: [`backend/.env.example`](backend/.env.example)).
+All backend settings live in `hw4/.env` (template: [`.env.example`](.env.example)).
 
 | Variable | Required | Default | Purpose |
 |---|---|---|---|
@@ -168,8 +170,8 @@ All backend settings live in `backend/.env` (template: [`backend/.env.example`](
 
 ## Security notes
 
-- Never commit `backend/.env`; it's in `.gitignore`. Only `.env.example` files with placeholders are tracked.
-- `data/` (customer emails, password hashes, chat history) and `output/audit_trail.json` (customer messages) are ignored.
+- Never commit `.env`; it's in `.gitignore`. Only `.env.example` files with placeholders are tracked.
+- `data/` (customer emails, password hashes, chat history, product photos) is ignored. `output/audit_trail.json` is committed as a deliverable. It contains only guest test conversations, and emails, card numbers, phones and passwords are redacted.
 - Agent tools are read-only; customer identity comes only from the signed token; see `output/harness.md` §13–14.
 
 ## Known limitations

@@ -56,7 +56,7 @@ The design makes the shop *look and feel* Yale-rooted and premium, but **the sit
 | Home | Hero with copy, stats and a 3-product collage; trust strip; category tiles; Represent (colleges/schools/sports); The Game feature; Campus favorites; Ask Handsome Dan promo with one-tap prompts; 1975 heritage band |
 | Product cards | Tidied names, serif titles, size availability row, color swatches, "Selling fast" badge (≥ 2 sizes with ≤ 5 left), hover "View details" |
 | Product detail | Swatches, low-stock emphasis, "Ask Handsome Dan about this" (opens chat with the size question; P8 page context does the rest), honest reassurance list |
-| Chat | Handsome Dan launcher (head cutout, online dot), teaser, branded header, welcome with full Dan, avatar on each reply. Persona renamed in `config.py` + `system_prompt.md` |
+| Chat | Handsome Dan launcher (head cutout, online dot), teaser, branded header, welcome with full Dan, avatar on each reply. Persona renamed in `config.py` + `prompt.md` |
 | Search | Storefront search now matches word starts ("art" no longer matches "qu**art**er-zip"), needed for the School of Art link |
 
 **Verified:** build passes, no new lint issues, `test_tools.py` 14/14, home/product/chat checked in the browser at desktop and mobile widths (no horizontal overflow), and the chat flow (prompt → clarifying question → quick-reply chips) still works.

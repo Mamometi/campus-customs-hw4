@@ -82,3 +82,8 @@ The first result was written as a one-time snapshot of the database, with no str
 
 **Additional prompt (sent during P13):**
 > create a repo, you have access to my github
+
+**Follow-up:**
+> layout the file like this *(screenshot of the required `hw4/` tree: root `requirements.txt` and `.env.example`, `backend/prompts/prompt.md`, `output/app_check_images/`, and `output/audit_trail.json`)*
+
+The first result kept `requirements.txt` and `.env.example` inside `backend/`, named the prompt `system_prompt.md`, stored screenshots in `output/screenshots/`, and gitignored `output/audit_trail.json`, so it didn't match the required submission layout.

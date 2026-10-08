@@ -2,7 +2,7 @@
 
 run_chat(message, history, user) -> ChatResponse is what main.py's /api/chat calls.
 Model/Portkey setup lives in config.py, tools in tools.py, the persona in
-prompts/system_prompt.md, and request/response shapes in models.py.
+prompts/prompt.md, and request/response shapes in models.py.
 """
 from __future__ import annotations
 
@@ -35,7 +35,7 @@ from models import (
     ToolError,
 )
 
-PROMPT_PATH = Path(__file__).resolve().parent / "prompts" / "system_prompt.md"
+PROMPT_PATH = Path(__file__).resolve().parent / "prompts" / "prompt.md"
 MAX_PRODUCT_CARDS = 6      # highlighted cards inside the chat bubble
 MAX_PAGE_RESULTS = 60      # cards shown on the page for one chat search
 MAX_MODEL_RESULTS = 20     # products the model itself sees per search call
@@ -70,7 +70,7 @@ agent = Agent(
 
 @agent.instructions
 def _system_prompt() -> str:
-    # Read on every run so edits to prompts/system_prompt.md apply without a
+    # Read on every run so edits to prompts/prompt.md apply without a
     # restart (uvicorn --reload only watches .py files).
     return PROMPT_PATH.read_text(encoding="utf-8")
 
