@@ -1,0 +1,90 @@
+/* Campus Customs design tokens (P10): Yale Blue, white, Caslon + Inter. */
+:root {
+  --yale-blue: #00356b;      /* Yale Blue, primary */
+  --yale-blue-dark: #00254b;
+  --yale-blue-deep: #001a35;
+  --accent: #286dc0;         /* Yale medium blue, links & focus */
+  --accent-light: #63aaff;
+  --accent-soft: #eaf1fb;
+  --ink: #111827;
+  --muted: #5b6574;
+  --line: #e3e7ed;
+  --bg: #ffffff;
+  --bg-alt: #f5f7fa;
+  --paper: #faf8f3;          /* heritage cream for story sections */
+  --card: #ffffff;
+  --danger: #b42318;
+  --success: #1f7a4d;
+
+  --serif: "Libre Caslon Text", Georgia, "Times New Roman", serif;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 2px 8px rgba(16, 24, 40, 0.05);
+  --shadow-lg: 0 12px 32px rgba(0, 37, 75, 0.14);
+  --container: 1240px;
+
+  font-family: var(--sans);
+  font-size: 16px;
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: var(--accent);
+  text-underline-offset: 3px;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--serif);
+  font-weight: 700;
+  color: var(--yale-blue);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.5rem;
+}
+
+h1 {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+}
+
+h2 {
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--yale-blue);
+  color: #fff;
+}

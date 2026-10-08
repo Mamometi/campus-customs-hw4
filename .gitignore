@@ -1,0 +1,45 @@
+# ---------- Secrets & API keys ----------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ---------- Data: database, product images, course data ----------
+# The SQLite DB holds customer accounts (emails, password hashes) and chat history.
+data/
+data.zip
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+
+# ---------- Agent logs (contain customer messages, even if redacted) ----------
+output/audit_trail.json
+output/audit_trail.corrupt-*.json
+output/*.json.tmp
+
+# ---------- Python ----------
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+
+# ---------- Node / Vite ----------
+node_modules/
+dist/
+dist-ssr/
+*.local
+*.tsbuildinfo
+
+# ---------- Logs & OS / editor files ----------
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp

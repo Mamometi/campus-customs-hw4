@@ -1,0 +1,11 @@
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+pydantic[email]>=2.7.0
+pydantic-ai-slim[openai]>=2.50  # 2.x API: UsageLimits(tool_calls_limit), OpenAIResponsesModel
+openai>=1.99
+python-dotenv>=1.0.1
+httpx>=0.27.0
+# Image processing for scripts/make_cutouts.py (P9; not needed to run the API)
+pillow>=10.0
+numpy>=1.26
+scipy>=1.11
